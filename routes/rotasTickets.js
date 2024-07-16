@@ -3,7 +3,8 @@ const { Router } = require('express');
 const { verificaJWT } = require('../controllers/segurancaControllers');
 
 const { getTickets, addTicket, 
-    updateTicket, deleteTicket, getTicketPorId } 
+    updateTicket, deleteTicket, getTicketPorId, 
+    getTicketSolicitante} 
     = require('../controllers/ticketControllers');
 
 const rotasTickets = new Router();

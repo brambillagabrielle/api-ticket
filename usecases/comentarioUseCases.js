@@ -5,7 +5,7 @@ const getComentariosDB = async () => {
     try {
         const { rows } = await pool.query('SELECT * FROM comentarios ORDER BY id');
         return rows.map((comentario) => new Comentario(comentario.id, comentario.data_postagem, comentario.texto, 
-            comentario.usuario, comentario.editado));
+            comentario.usuario, comentario.editado, comentario.ticket));
     } catch (err) {
         throw "Erro: " + err;
     }
@@ -13,13 +13,13 @@ const getComentariosDB = async () => {
 
 const addComentarioDB = async (body) => {
     try {
-        const { texto, usuario } = body;
-        const results = await pool.query(`INSERT INTO comentarios (data_postagem, texto, usuario, editado)
-        VALUES (NOW(), $1, $2, false) RETURNING id, data_postagem, texto, usuario, editado`,
-        [texto, usuario]);
+        const { texto, usuario, ticket } = body;
+        const results = await pool.query(`INSERT INTO comentarios (data_postagem, texto, usuario, editado, ticket)
+        VALUES (NOW(), $1, $2, false, $3) RETURNING id, data_postagem, texto, usuario, editado, ticket`,
+        [texto, usuario, ticket]);
         const comentario = results.rows[0];
         return new Comentario(comentario.id, comentario.data_postagem, comentario.texto, 
-            comentario.usuario, comentario.editado)
+            comentario.usuario, comentario.editado, comentario.ticket)
     } catch (err) {
         throw "Erro: " + err;
     }
@@ -29,14 +29,14 @@ const updateComentarioDB = async (body) => {
     try {
         const { id, texto } = body;
         const results = await pool.query(`UPDATE comentarios SET texto = $2, editado = true
-        WHERE id = $1 RETURNING id, data_postagem, texto, usuario, editado`,
+        WHERE id = $1 RETURNING id, data_postagem, texto, usuario, editado, ticket`,
         [id, texto]);
         if (results.rowCount == 0){
             throw `Nenhum registro encontrado com o código ${id} para ser alterado`
         }
         const comentario = results.rows[0];
         return new Comentario(comentario.id, comentario.data_postagem, comentario.texto, 
-            comentario.usuario, comentario.editado)
+            comentario.usuario, comentario.editado, comentario.ticket)
     } catch (err) {
         throw "Erro ao alterar: " + err;
     }
@@ -65,7 +65,7 @@ const getComentarioPorIdDB = async (id) => {
         } else {
             const comentario = results.rows[0];
             return new Comentario(comentario.id, comentario.data_postagem, comentario.texto, 
-                comentario.usuario, comentario.editado)
+                comentario.usuario, comentario.editado, comentario.ticket)
         }
     } catch (err) {
         throw "Erro ao recuperar: " + err;
